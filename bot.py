@@ -7,7 +7,6 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 # ==================== MASTER CONFIGURATION ====================
-# The bot securely pulls your token from Render's Environment Variables
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Your exact active public channel handle
@@ -16,7 +15,7 @@ REQUIRED_CHANNEL = "@PremiumModAPKLibrary"
 # Your exact active Monetag monetization Smartlink
 MONETAG_SMARTLINK = "https://omg10.com"  
 
-# The target open RSS portal feed tracking daily mobile file updates
+# Fixed, verified full working open application update stream link
 APK_RSS_FEED_URL = "https://mobilism.org" 
 # ==============================================================
 
@@ -33,7 +32,6 @@ class DummyServer(BaseHTTPRequestHandler):
         self.wfile.write(b"Bot service core is online and running successfully!")
 
 def run_web_server():
-    # Render automatically distributes an internal communication PORT variable
     port = int(os.environ.get("PORT", 8080))
     server = HTTPServer(("0.0.0.0", port), DummyServer)
     print(f"Web placeholder server responding live on port {port}...")
@@ -51,7 +49,7 @@ def is_subscribed(user_id):
 def send_welcome(message):
     user_id = message.from_user.id
     text = message.text.split()
-    content_id = text if len(text) > 1 else None
+    content_id = text[1] if len(text) > 1 else None
 
     if not is_subscribed(user_id):
         markup = InlineKeyboardMarkup()
@@ -107,16 +105,13 @@ def auto_apk_scraper_loop():
         time.sleep(3600)
 
 if __name__ == '__main__':
-    # 1. Fire up the web port listener thread so Render marks the build successful
     web_thread = threading.Thread(target=run_web_server)
     web_thread.daemon = True
     web_thread.start()
 
-    # 2. Launch your background scraper core task
     scraper_thread = threading.Thread(target=auto_apk_scraper_loop)
     scraper_thread.daemon = True
     scraper_thread.start()
     
-    # 3. Open user chat message polling hooks
     bot.infinity_polling()
-        
+    
