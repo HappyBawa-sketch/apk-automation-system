@@ -10,7 +10,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Your exact active public channel handle
-REQUIRED_CHANNEL = "@PremiumModAPKLibrary"  
+REQUIRED_CHANNEL = "-1002345678910"  
 
 # Your exact active Monetag monetization Smartlink
 MONETAG_SMARTLINK = "https://omg10.com"  
