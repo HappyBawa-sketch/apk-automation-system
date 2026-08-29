@@ -7,6 +7,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 # ==================== MASTER CONFIGURATION ====================
+# The bot securely pulls your token from Render's Environment Variables
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Your exact active public channel handle
@@ -49,7 +50,7 @@ def is_subscribed(user_id):
 def send_welcome(message):
     user_id = message.from_user.id
     text = message.text.split()
-    content_id = text[1] if len(text) > 1 else None
+    content_id = text if len(text) > 1 else None
 
     if not is_subscribed(user_id):
         markup = InlineKeyboardMarkup()
@@ -82,7 +83,7 @@ def auto_apk_scraper_loop():
         try:
             feed = feedparser.parse(APK_RSS_FEED_URL)
             if feed.entries:
-                latest_entry = feed.entries[0]
+                latest_entry = feed.entries[0]  # Safely parse the newest individual item
                 
                 if latest_entry.id != LAST_PROCESSED_ENTRY_ID:
                     LAST_PROCESSED_ENTRY_ID = latest_entry.id
@@ -100,18 +101,20 @@ def auto_apk_scraper_loop():
                     print(f"Successfully processed and published: {latest_entry.title}")
                     
         except Exception as e:
-            print(f"Scraper Engine warning catch: {str(e)}")
+            print(f"Scraper Engine error log trace: {str(e)}")
             
         time.sleep(3600)
 
 if __name__ == '__main__':
+    # 1. Fire up the web port listener thread so Render marks the build successful
     web_thread = threading.Thread(target=run_web_server)
     web_thread.daemon = True
     web_thread.start()
 
+    # 2. Launch your background scraper core task
     scraper_thread = threading.Thread(target=auto_apk_scraper_loop)
     scraper_thread.daemon = True
     scraper_thread.start()
     
+    # 3. Open user chat message polling hooks
     bot.infinity_polling()
-    
